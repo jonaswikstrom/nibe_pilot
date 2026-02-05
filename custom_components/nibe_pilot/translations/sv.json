@@ -1,0 +1,88 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "NibePilot - API-konfiguration",
+        "description": "Ange din Claude API-nyckel och välj uppdateringsintervall.",
+        "data": {
+          "api_key": "Claude API-nyckel",
+          "update_interval": "Uppdateringsintervall (minuter)"
+        }
+      },
+      "sensors": {
+        "title": "Temperatursensorer",
+        "description": "Välj sensorer från din Nibe värmepump. De tre första är obligatoriska.",
+        "data": {
+          "outdoor_temp_entity": "Utomhustemperatur (BT1)",
+          "indoor_temp_entity": "Inomhustemperatur (BT50)",
+          "supply_temp_entity": "Framledningstemperatur (BT2)",
+          "return_temp_entity": "Returtemperatur (BT3)",
+          "compressor_freq_entity": "Kompressorfrekvens",
+          "power_consumption_entity": "Elförbrukning",
+          "hot_water_temp_entity": "Varmvattentemperatur (BT6/BT7)"
+        }
+      },
+      "controls": {
+        "title": "Styrenheter",
+        "description": "Välj de entiteter som NibePilot kan justera. Lämna tomt för skrivskyddat läge.",
+        "data": {
+          "heat_curve_entity": "Värmekurva",
+          "heat_offset_entity": "Värmeoffset",
+          "setpoint_entity": "Temperaturbörvärde"
+        }
+      },
+      "external": {
+        "title": "Externa datakällor",
+        "description": "Valfritt: Anslut väderprognos och elprisdata för smartare styrning.",
+        "data": {
+          "weather_entity": "Väderprognos-entitet",
+          "electricity_price_entity": "Elpris-entitet (Nordpool)"
+        }
+      }
+    },
+    "error": {
+      "invalid_api_key": "Ogiltig Claude API-nyckel. Kontrollera och försök igen.",
+      "required": "Detta fält är obligatoriskt."
+    },
+    "abort": {
+      "already_configured": "NibePilot är redan konfigurerat."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "NibePilot-inställningar",
+        "description": "Justera inställningar för NibePilot.",
+        "data": {
+          "update_interval": "Uppdateringsintervall (minuter)",
+          "outdoor_temp_entity": "Utomhustemperatursensor",
+          "indoor_temp_entity": "Inomhustemperatursensor",
+          "supply_temp_entity": "Framledningstemperatursensor",
+          "weather_entity": "Väderprognos-entitet",
+          "electricity_price_entity": "Elpris-entitet"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "recommendation": {
+        "name": "Rekommendation"
+      },
+      "analysis": {
+        "name": "AI-analys"
+      },
+      "confidence": {
+        "name": "AI-confidence"
+      },
+      "last_action": {
+        "name": "Senaste åtgärd"
+      }
+    },
+    "switch": {
+      "auto_mode": {
+        "name": "Auto-mode"
+      }
+    }
+  }
+}

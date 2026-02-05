@@ -1,0 +1,14 @@
+{
+  "domain": "nibe_pilot",
+  "name": "NibePilot",
+  "codeowners": ["@jonasw"],
+  "config_flow": true,
+  "documentation": "https://github.com/jonasw/nibe_pilot",
+  "issue_tracker": "https://github.com/jonasw/nibe_pilot/issues",
+  "requirements": ["anthropic>=0.39.0"],
+  "version": "1.0.0",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "dependencies": [],
+  "homeassistant": "2024.1.0"
+}

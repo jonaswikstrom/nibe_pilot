@@ -1,0 +1,88 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "NibePilot - API Configuration",
+        "description": "Enter your Claude API key and select update interval.",
+        "data": {
+          "api_key": "Claude API Key",
+          "update_interval": "Update Interval (minutes)"
+        }
+      },
+      "sensors": {
+        "title": "Temperature Sensors",
+        "description": "Select the sensors from your Nibe heat pump. The first three are required.",
+        "data": {
+          "outdoor_temp_entity": "Outdoor Temperature (BT1)",
+          "indoor_temp_entity": "Indoor Temperature (BT50)",
+          "supply_temp_entity": "Supply Temperature (BT2)",
+          "return_temp_entity": "Return Temperature (BT3)",
+          "compressor_freq_entity": "Compressor Frequency",
+          "power_consumption_entity": "Power Consumption",
+          "hot_water_temp_entity": "Hot Water Temperature (BT6/BT7)"
+        }
+      },
+      "controls": {
+        "title": "Control Entities",
+        "description": "Select the entities that NibePilot can adjust. Leave empty to use read-only mode.",
+        "data": {
+          "heat_curve_entity": "Heat Curve",
+          "heat_offset_entity": "Heat Offset",
+          "setpoint_entity": "Temperature Setpoint"
+        }
+      },
+      "external": {
+        "title": "External Data Sources",
+        "description": "Optional: Connect weather forecast and electricity price data for smarter control.",
+        "data": {
+          "weather_entity": "Weather Forecast Entity",
+          "electricity_price_entity": "Electricity Price Entity (Nordpool)"
+        }
+      }
+    },
+    "error": {
+      "invalid_api_key": "Invalid Claude API key. Please check and try again.",
+      "required": "This field is required."
+    },
+    "abort": {
+      "already_configured": "NibePilot is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "NibePilot Options",
+        "description": "Adjust settings for NibePilot.",
+        "data": {
+          "update_interval": "Update Interval (minutes)",
+          "outdoor_temp_entity": "Outdoor Temperature Sensor",
+          "indoor_temp_entity": "Indoor Temperature Sensor",
+          "supply_temp_entity": "Supply Temperature Sensor",
+          "weather_entity": "Weather Forecast Entity",
+          "electricity_price_entity": "Electricity Price Entity"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "recommendation": {
+        "name": "Recommendation"
+      },
+      "analysis": {
+        "name": "AI Analysis"
+      },
+      "confidence": {
+        "name": "AI Confidence"
+      },
+      "last_action": {
+        "name": "Last Action"
+      }
+    },
+    "switch": {
+      "auto_mode": {
+        "name": "Auto Mode"
+      }
+    }
+  }
+}
