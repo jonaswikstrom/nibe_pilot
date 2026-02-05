@@ -1,7 +1,7 @@
 import logging
 from datetime import timedelta
 from typing import Any
-from homeassistant.core import HomeAssistant, CoreState
+from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
@@ -29,8 +29,6 @@ from .control_service import ControlService
 
 _LOGGER = logging.getLogger(__name__)
 
-STARTUP_DELAY_SECONDS = 120
-
 
 class NibePilotCoordinator(DataUpdateCoordinator):
     def __init__(
@@ -45,8 +43,7 @@ class NibePilotCoordinator(DataUpdateCoordinator):
         self.control_service = control_service
         self.auto_mode = False
         self._last_recommendation: dict[str, Any] = {}
-        self._startup_complete = False
-        self._first_update_skipped = False
+        self._startup_ready = False
 
         config = {**entry.data, **entry.options}
         update_interval = config.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
@@ -60,19 +57,9 @@ class NibePilotCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self) -> dict[str, Any]:
         try:
-            if self.hass.state != CoreState.running:
-                _LOGGER.debug("Home Assistant not fully started, skipping analysis")
+            if not self._startup_ready:
+                _LOGGER.debug("Startup not complete, skipping analysis")
                 return self._waiting_response("Väntar på att Home Assistant ska starta")
-
-            if not self._first_update_skipped:
-                self._first_update_skipped = True
-                _LOGGER.info(
-                    "First update after startup, waiting %d seconds before analysis",
-                    STARTUP_DELAY_SECONDS
-                )
-                return self._waiting_response(
-                    f"Väntar {STARTUP_DELAY_SECONDS}s på att sensorer ska stabiliseras"
-                )
 
             sensor_data = self._collect_sensor_data()
 
@@ -233,3 +220,7 @@ class NibePilotCoordinator(DataUpdateCoordinator):
     def set_auto_mode(self, enabled: bool):
         self.auto_mode = enabled
         _LOGGER.info("Auto mode %s", "enabled" if enabled else "disabled")
+
+    def mark_startup_ready(self):
+        self._startup_ready = True
+        _LOGGER.info("Startup complete, analysis enabled")
