@@ -60,7 +60,8 @@
           "indoor_temp_entity": "Inomhustemperatursensor",
           "supply_temp_entity": "Framledningstemperatursensor",
           "weather_entity": "Väderprognos-entitet",
-          "electricity_price_entity": "Elpris-entitet"
+          "electricity_price_entity": "Elpris-entitet",
+          "building_type": "Byggnadstyp"
         }
       },
       "safety": {

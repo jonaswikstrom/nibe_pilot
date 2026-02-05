@@ -25,6 +25,7 @@ from .const import (
     CONF_MAX_HEAT_OFFSET_DELTA,
     CONF_CONFIDENCE_THRESHOLD,
     CONF_COOLDOWN_MINUTES,
+    CONF_BUILDING_TYPE,
     DEFAULT_UPDATE_INTERVAL,
     DEFAULT_MAX_HEAT_CURVE_DELTA,
     DEFAULT_MAX_HEAT_OFFSET_DELTA,
@@ -240,6 +241,19 @@ class NibePilotOptionsFlow(config_entries.OptionsFlow):
                 description={"suggested_value": current.get(CONF_ELECTRICITY_PRICE)}
             ): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor")
+            ),
+            vol.Optional(
+                CONF_BUILDING_TYPE,
+                description={"suggested_value": current.get(CONF_BUILDING_TYPE)}
+            ): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[
+                        {"value": "light", "label": "Lätt byggnad (snabb uppvärmning)"},
+                        {"value": "medium", "label": "Normal byggnad"},
+                        {"value": "heavy", "label": "Tung byggnad (stor termisk massa)"},
+                    ],
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
             ),
         })
 

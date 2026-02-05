@@ -1,6 +1,7 @@
 import logging
 import json
 import asyncio
+from datetime import datetime
 from typing import Any
 from anthropic import (
     AsyncAnthropic,
@@ -44,7 +45,12 @@ Svara ENDAST med valid JSON i följande format:
 
 
 def build_user_prompt(data: dict[str, Any]) -> str:
-    prompt_parts = ["NUVARANDE TILLSTÅND:"]
+    now = datetime.now()
+    prompt_parts = [
+        f"TIDPUNKT: {now.strftime('%Y-%m-%d %H:%M')} ({now.strftime('%A')})",
+        "",
+        "NUVARANDE TILLSTÅND:"
+    ]
 
     if data.get("outdoor_temp") is not None:
         prompt_parts.append(f"- Utomhustemperatur: {data['outdoor_temp']}°C")
@@ -82,6 +88,18 @@ def build_user_prompt(data: dict[str, Any]) -> str:
             prompt_parts.append(
                 f"- {price.get('hour', 'N/A')}: {price.get('price', 'N/A')} öre/kWh"
             )
+
+    if data.get("last_action"):
+        prompt_parts.append("\nSENASTE JUSTERING:")
+        last = data["last_action"]
+        prompt_parts.append(f"- Åtgärd: {last.get('action', 'okänd')}")
+        if last.get("delta"):
+            prompt_parts.append(f"- Justering: {last.get('delta')}")
+        if last.get("timestamp"):
+            prompt_parts.append(f"- Tidpunkt: {last.get('timestamp')}")
+
+    if data.get("building_type"):
+        prompt_parts.append(f"\nBYGGNADSTYP: {data['building_type']}")
 
     prompt_parts.append("\nGe din rekommendation baserat på ovanstående data.")
 

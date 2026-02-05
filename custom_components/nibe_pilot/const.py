@@ -25,6 +25,7 @@ CONF_CONFIDENCE_THRESHOLD: Final = "confidence_threshold"
 CONF_MIN_INDOOR_TEMP: Final = "min_indoor_temp"
 CONF_MAX_INDOOR_TEMP: Final = "max_indoor_temp"
 CONF_COOLDOWN_MINUTES: Final = "cooldown_minutes"
+CONF_BUILDING_TYPE: Final = "building_type"
 
 DEFAULT_UPDATE_INTERVAL: Final = 15
 DEFAULT_CONFIDENCE_THRESHOLD: Final = 0.7

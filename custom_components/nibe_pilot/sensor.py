@@ -51,7 +51,7 @@ class NibePilotBaseSensor(CoordinatorEntity[NibePilotCoordinator], SensorEntity)
             "name": "NibePilot",
             "manufacturer": "Community",
             "model": "AI Heat Pump Controller",
-            "sw_version": "1.1.0",
+            "sw_version": "1.1.1",
         }
 
 

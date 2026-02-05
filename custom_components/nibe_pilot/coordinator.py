@@ -21,6 +21,7 @@ from .const import (
     CONF_MANUAL_SETPOINT,
     CONF_WEATHER,
     CONF_ELECTRICITY_PRICE,
+    CONF_BUILDING_TYPE,
     DEFAULT_UPDATE_INTERVAL,
 )
 from .claude_service import ClaudeService
@@ -56,6 +57,12 @@ class NibePilotCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self) -> dict[str, Any]:
         try:
             sensor_data = self._collect_sensor_data()
+
+            if self.control_service.last_action:
+                sensor_data["last_action"] = {
+                    "action": self.control_service.last_action,
+                    **self.control_service.last_action_details,
+                }
 
             _LOGGER.debug("Collected sensor data: %s", sensor_data)
 
@@ -118,6 +125,9 @@ class NibePilotCoordinator(DataUpdateCoordinator):
         price_entity = config.get(CONF_ELECTRICITY_PRICE)
         if price_entity:
             data["electricity_prices"] = self._get_electricity_prices(price_entity)
+
+        if config.get(CONF_BUILDING_TYPE):
+            data["building_type"] = config.get(CONF_BUILDING_TYPE)
 
         return data
 

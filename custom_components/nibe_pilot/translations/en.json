@@ -60,7 +60,8 @@
           "indoor_temp_entity": "Indoor Temperature Sensor",
           "supply_temp_entity": "Supply Temperature Sensor",
           "weather_entity": "Weather Forecast Entity",
-          "electricity_price_entity": "Electricity Price Entity"
+          "electricity_price_entity": "Electricity Price Entity",
+          "building_type": "Building Type"
         }
       },
       "safety": {
