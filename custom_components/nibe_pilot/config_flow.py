@@ -185,12 +185,11 @@ class NibePilotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
-        return NibePilotOptionsFlow(config_entry)
+        return NibePilotOptionsFlow()
 
 
 class NibePilotOptionsFlow(config_entries.OptionsFlow):
-    def __init__(self, config_entry):
-        self.config_entry = config_entry
+    def __init__(self):
         self._options_data = {}
 
     async def async_step_init(self, user_input=None):
