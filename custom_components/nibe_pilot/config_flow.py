@@ -18,6 +18,7 @@ from .const import (
     CONF_HEAT_CURVE,
     CONF_HEAT_OFFSET,
     CONF_SETPOINT,
+    CONF_MANUAL_SETPOINT,
     CONF_WEATHER,
     CONF_ELECTRICITY_PRICE,
     DEFAULT_UPDATE_INTERVAL,
@@ -128,6 +129,15 @@ class NibePilotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             ),
             vol.Optional(CONF_SETPOINT): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain=["climate", "number", "input_number"])
+            ),
+            vol.Optional(CONF_MANUAL_SETPOINT): selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    min=15,
+                    max=25,
+                    step=0.5,
+                    unit_of_measurement="°C",
+                    mode=selector.NumberSelectorMode.BOX,
+                )
             ),
         })
 

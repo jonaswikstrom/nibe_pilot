@@ -28,7 +28,8 @@
         "data": {
           "heat_curve_entity": "Värmekurva",
           "heat_offset_entity": "Värmeoffset",
-          "setpoint_entity": "Temperaturbörvärde"
+          "setpoint_entity": "Temperaturbörvärde (entitet)",
+          "manual_setpoint": "Manuellt börvärde (om ingen entitet)"
         }
       },
       "external": {

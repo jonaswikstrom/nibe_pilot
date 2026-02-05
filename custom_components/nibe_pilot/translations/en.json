@@ -28,7 +28,8 @@
         "data": {
           "heat_curve_entity": "Heat Curve",
           "heat_offset_entity": "Heat Offset",
-          "setpoint_entity": "Temperature Setpoint"
+          "setpoint_entity": "Temperature Setpoint (entity)",
+          "manual_setpoint": "Manual Setpoint (if no entity)"
         }
       },
       "external": {

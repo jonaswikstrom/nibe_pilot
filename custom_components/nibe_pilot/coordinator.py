@@ -18,6 +18,7 @@ from .const import (
     CONF_HEAT_CURVE,
     CONF_HEAT_OFFSET,
     CONF_SETPOINT,
+    CONF_MANUAL_SETPOINT,
     CONF_WEATHER,
     CONF_ELECTRICITY_PRICE,
     DEFAULT_UPDATE_INTERVAL,
@@ -105,6 +106,9 @@ class NibePilotCoordinator(DataUpdateCoordinator):
                 value = self._get_entity_value(entity_id)
                 if value is not None:
                     data[data_key] = value
+
+        if "setpoint" not in data and config.get(CONF_MANUAL_SETPOINT):
+            data["setpoint"] = config.get(CONF_MANUAL_SETPOINT)
 
         weather_entity = config.get(CONF_WEATHER)
         if weather_entity:

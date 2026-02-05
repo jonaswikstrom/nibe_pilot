@@ -15,6 +15,7 @@ CONF_RETURN_TEMP: Final = "return_temp_entity"
 CONF_HEAT_CURVE: Final = "heat_curve_entity"
 CONF_HEAT_OFFSET: Final = "heat_offset_entity"
 CONF_SETPOINT: Final = "setpoint_entity"
+CONF_MANUAL_SETPOINT: Final = "manual_setpoint"
 CONF_WEATHER: Final = "weather_entity"
 CONF_ELECTRICITY_PRICE: Final = "electricity_price_entity"
 
