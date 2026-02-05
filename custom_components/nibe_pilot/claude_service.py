@@ -95,20 +95,40 @@ class ClaudeService:
                 messages=[{"role": "user", "content": user_prompt}]
             )
 
+            _LOGGER.debug("Claude response object: %s", response)
+            _LOGGER.debug("Stop reason: %s", response.stop_reason)
+
+            if not response.content:
+                _LOGGER.error("Claude returned empty content")
+                return self._default_response("Tomt svar från AI")
+
             response_text = response.content[0].text
-            _LOGGER.debug("Claude response: %s", response_text)
+            _LOGGER.debug("Claude response text: %s", response_text)
 
-            result = json.loads(response_text)
+            if not response_text or not response_text.strip():
+                _LOGGER.error("Claude returned empty text")
+                return self._default_response("Tomt textsvar från AI")
 
+            clean_text = response_text.strip()
+            if clean_text.startswith("```json"):
+                clean_text = clean_text[7:]
+            if clean_text.startswith("```"):
+                clean_text = clean_text[3:]
+            if clean_text.endswith("```"):
+                clean_text = clean_text[:-3]
+            clean_text = clean_text.strip()
+
+            result = json.loads(clean_text)
             result = self._validate_and_clamp(result)
 
             return result
 
         except json.JSONDecodeError as e:
             _LOGGER.error("Failed to parse Claude response as JSON: %s", e)
+            _LOGGER.error("Response text was: %s", response_text if 'response_text' in dir() else 'N/A')
             return self._default_response("Kunde inte tolka AI-svaret")
         except Exception as e:
-            _LOGGER.error("Error calling Claude API: %s", e)
+            _LOGGER.error("Error calling Claude API: %s", e, exc_info=True)
             return self._default_response(f"API-fel: {str(e)}")
 
     def _validate_and_clamp(self, result: dict[str, Any]) -> dict[str, Any]:
