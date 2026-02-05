@@ -26,9 +26,18 @@ VIKTIGA PRINCIPER:
 1. Prioritera komfort - inomhustemperaturen ska vara stabil nära börvärdet
 2. Optimera energieffektivitet när det inte påverkar komforten
 3. Använd väderprognos för att förutse värmebehov
-4. Om elpris finns: överväg att förskjuta last till billigare timmar
-5. Undvik onödiga ändringar - små avvikelser kräver ingen åtgärd
-6. Var konservativ med ändringar - hellre små justeringar ofta än stora sällan
+4. Undvik onödiga ändringar - små avvikelser kräver ingen åtgärd
+5. Var konservativ med ändringar - hellre små justeringar ofta än stora sällan
+
+ELPRISOPTIMERING (om prisdata finns):
+- BILLIG TIMME (under genomsnitt): Öka värmeoffset (+1 till +3) för att lagra värme i huset
+- DYR TIMME (över genomsnitt): Minska värmeoffset (-1 till -3) för att utnyttja lagrad värme
+- Anpassa aggressiviteten efter byggnadstyp:
+  * Lätt byggnad: max ±1 (värmen försvinner snabbt)
+  * Normal byggnad: max ±2
+  * Tung byggnad: max ±3 (kan lagra mycket värme)
+- Vid mycket dyra priser (>50% över snitt): prioritera kostnadsbesparing mer aggressivt
+- Kombinera med väderprognos: förladda värme innan kall period + dyra timmar
 
 BEGRÄNSNINGAR:
 - Värmekurva-justering: max ±5 per analys
@@ -83,11 +92,44 @@ def build_user_prompt(data: dict[str, Any]) -> str:
             )
 
     if data.get("electricity_prices"):
-        prompt_parts.append("\nELPRIS (kommande timmar):")
-        for price in data["electricity_prices"][:8]:
-            prompt_parts.append(
-                f"- {price.get('hour', 'N/A')}: {price.get('price', 'N/A')} öre/kWh"
-            )
+        prices = data["electricity_prices"]
+        price_values = [p.get("price") for p in prices if p.get("price") is not None]
+
+        if price_values:
+            avg_price = sum(price_values) / len(price_values)
+            min_price = min(price_values)
+            max_price = max(price_values)
+            current_price = price_values[0] if price_values else None
+
+            prompt_parts.append("\nELPRIS:")
+            prompt_parts.append(f"- Nuvarande pris: {current_price:.1f} öre/kWh")
+            prompt_parts.append(f"- Genomsnitt (24h): {avg_price:.1f} öre/kWh")
+            prompt_parts.append(f"- Lägsta: {min_price:.1f} öre/kWh")
+            prompt_parts.append(f"- Högsta: {max_price:.1f} öre/kWh")
+
+            if current_price:
+                price_diff_pct = ((current_price - avg_price) / avg_price) * 100
+                if price_diff_pct < -20:
+                    prompt_parts.append(f"- Status: BILLIGT ({price_diff_pct:.0f}% under snitt)")
+                elif price_diff_pct > 20:
+                    prompt_parts.append(f"- Status: DYRT ({price_diff_pct:.0f}% över snitt)")
+                else:
+                    prompt_parts.append(f"- Status: NORMALT ({price_diff_pct:+.0f}% vs snitt)")
+
+            prompt_parts.append("\nKommande timmar:")
+            for price in prices[:6]:
+                hour_price = price.get("price")
+                if hour_price is not None:
+                    indicator = "↓" if hour_price < avg_price * 0.8 else "↑" if hour_price > avg_price * 1.2 else "→"
+                    prompt_parts.append(
+                        f"  {price.get('hour', 'N/A')}: {hour_price:.1f} öre/kWh {indicator}"
+                    )
+        else:
+            prompt_parts.append("\nELPRIS (kommande timmar):")
+            for price in prices[:8]:
+                prompt_parts.append(
+                    f"- {price.get('hour', 'N/A')}: {price.get('price', 'N/A')} öre/kWh"
+                )
 
     if data.get("last_action"):
         prompt_parts.append("\nSENASTE JUSTERING:")
