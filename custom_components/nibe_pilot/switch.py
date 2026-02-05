@@ -38,7 +38,7 @@ class NibePilotAutoModeSwitch(CoordinatorEntity[NibePilotCoordinator], SwitchEnt
             "name": "NibePilot",
             "manufacturer": "Community",
             "model": "AI Heat Pump Controller",
-            "sw_version": "1.2.0",
+            "sw_version": "1.2.1",
         }
 
     @property

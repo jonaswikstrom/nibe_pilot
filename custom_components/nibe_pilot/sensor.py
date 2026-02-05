@@ -51,7 +51,7 @@ class NibePilotBaseSensor(CoordinatorEntity[NibePilotCoordinator], SensorEntity)
             "name": "NibePilot",
             "manufacturer": "Community",
             "model": "AI Heat Pump Controller",
-            "sw_version": "1.2.0",
+            "sw_version": "1.2.1",
         }
 
 
@@ -105,7 +105,10 @@ class NibePilotAnalysisSensor(NibePilotBaseSensor):
             return "Väntar på analys"
 
         recommendation = self.coordinator.data.get("recommendation", {})
-        return recommendation.get("reasoning", "Ingen analys tillgänglig")
+        reasoning = recommendation.get("reasoning", "Ingen analys tillgänglig")
+        if len(reasoning) > 250:
+            return reasoning[:247] + "..."
+        return reasoning
 
     @property
     def extra_state_attributes(self):
