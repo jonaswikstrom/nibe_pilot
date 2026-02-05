@@ -197,12 +197,22 @@ class NibePilotOptionsFlow(config_entries.OptionsFlow):
     def __init__(self):
         self._options_data = {}
 
+    def _get_notify_services(self) -> list[dict[str, str]]:
+        services = self.hass.services.async_services()
+        notify_services = services.get("notify", {})
+        options = [{"value": "", "label": "Ingen (inaktiverad)"}]
+        for service_name in sorted(notify_services.keys()):
+            full_name = f"notify.{service_name}"
+            options.append({"value": full_name, "label": full_name})
+        return options
+
     async def async_step_init(self, user_input=None):
         if user_input is not None:
             self._options_data = user_input
             return await self.async_step_safety()
 
         current = {**self.config_entry.data, **self.config_entry.options}
+        notify_options = self._get_notify_services()
 
         schema = vol.Schema({
             vol.Required(
@@ -275,10 +285,11 @@ class NibePilotOptionsFlow(config_entries.OptionsFlow):
             ),
             vol.Optional(
                 CONF_NOTIFY_SERVICE,
-                description={"suggested_value": current.get(CONF_NOTIFY_SERVICE)}
-            ): selector.TextSelector(
-                selector.TextSelectorConfig(
-                    type=selector.TextSelectorType.TEXT,
+                description={"suggested_value": current.get(CONF_NOTIFY_SERVICE, "")}
+            ): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=notify_options,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
                 )
             ),
         })
