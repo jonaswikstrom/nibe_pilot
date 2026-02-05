@@ -22,10 +22,16 @@ from .const import (
     CONF_WEATHER,
     CONF_ELECTRICITY_PRICE,
     CONF_BUILDING_TYPE,
+    CONF_CONTROL_MODE,
+    CONF_NOTIFY_SERVICE,
+    CONTROL_MODE_MANUAL,
+    CONTROL_MODE_NOTIFY,
+    CONTROL_MODE_AUTO,
     DEFAULT_UPDATE_INTERVAL,
 )
 from .claude_service import ClaudeService
 from .control_service import ControlService
+from .notification_service import NotificationService
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -41,11 +47,14 @@ class NibePilotCoordinator(DataUpdateCoordinator):
         self.entry = entry
         self.claude_service = claude_service
         self.control_service = control_service
-        self.auto_mode = False
         self._last_recommendation: dict[str, Any] = {}
         self._startup_ready = False
 
         config = {**entry.data, **entry.options}
+        self._control_mode = config.get(CONF_CONTROL_MODE, CONTROL_MODE_MANUAL)
+        notify_service = config.get(CONF_NOTIFY_SERVICE)
+        self.notification_service = NotificationService(hass, notify_service)
+
         update_interval = config.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
 
         super().__init__(
@@ -54,6 +63,14 @@ class NibePilotCoordinator(DataUpdateCoordinator):
             name=DOMAIN,
             update_interval=timedelta(minutes=update_interval),
         )
+
+    @property
+    def control_mode(self) -> str:
+        return self._control_mode
+
+    @property
+    def auto_mode(self) -> bool:
+        return self._control_mode == CONTROL_MODE_AUTO
 
     async def _async_update_data(self) -> dict[str, Any]:
         try:
@@ -85,16 +102,25 @@ class NibePilotCoordinator(DataUpdateCoordinator):
                 recommendation.get("confidence", 0) * 100
             )
 
-            await self.control_service.apply_recommendation(
-                recommendation,
-                self.auto_mode
-            )
+            action = recommendation.get("action", "no_change")
+
+            if self._control_mode == CONTROL_MODE_AUTO:
+                await self.control_service.apply_recommendation(recommendation, True)
+            elif self._control_mode == CONTROL_MODE_NOTIFY and action != "no_change":
+                await self.notification_service.send_recommendation_notification(
+                    recommendation
+                )
+                self.control_service.last_action = "awaiting_confirmation"
+                self.control_service.last_action_details = {
+                    "reason": "Väntar på bekräftelse via notis",
+                }
 
             return {
                 "sensor_data": sensor_data,
                 "recommendation": recommendation,
                 "last_action": self.control_service.get_last_action_summary(),
                 "auto_mode": self.auto_mode,
+                "control_mode": self._control_mode,
             }
 
         except Exception as err:
@@ -123,6 +149,7 @@ class NibePilotCoordinator(DataUpdateCoordinator):
             },
             "last_action": reason,
             "auto_mode": self.auto_mode,
+            "control_mode": self._control_mode,
         }
 
     def _collect_sensor_data(self) -> dict[str, Any]:
@@ -218,8 +245,34 @@ class NibePilotCoordinator(DataUpdateCoordinator):
         return self._last_recommendation
 
     def set_auto_mode(self, enabled: bool):
-        self.auto_mode = enabled
-        _LOGGER.info("Auto mode %s", "enabled" if enabled else "disabled")
+        if enabled:
+            self._control_mode = CONTROL_MODE_AUTO
+        else:
+            self._control_mode = CONTROL_MODE_MANUAL
+        _LOGGER.info("Control mode set to %s", self._control_mode)
+
+    def set_control_mode(self, mode: str):
+        if mode in (CONTROL_MODE_MANUAL, CONTROL_MODE_NOTIFY, CONTROL_MODE_AUTO):
+            self._control_mode = mode
+            _LOGGER.info("Control mode set to %s", mode)
+
+    async def apply_pending_recommendation(self) -> bool:
+        pending = self.notification_service.pending_recommendation
+        if not pending:
+            _LOGGER.warning("No pending recommendation to apply")
+            return False
+
+        result = await self.control_service.apply_recommendation(pending, True)
+        self.notification_service.clear_pending()
+        await self.async_request_refresh()
+        return result
+
+    def dismiss_pending_recommendation(self):
+        self.notification_service.clear_pending()
+        self.control_service.last_action = "dismissed"
+        self.control_service.last_action_details = {
+            "reason": "Användaren avvisade rekommendationen",
+        }
 
     def mark_startup_ready(self):
         self._startup_ready = True

@@ -26,6 +26,15 @@ CONF_MIN_INDOOR_TEMP: Final = "min_indoor_temp"
 CONF_MAX_INDOOR_TEMP: Final = "max_indoor_temp"
 CONF_COOLDOWN_MINUTES: Final = "cooldown_minutes"
 CONF_BUILDING_TYPE: Final = "building_type"
+CONF_NOTIFY_SERVICE: Final = "notify_service"
+CONF_CONTROL_MODE: Final = "control_mode"
+
+CONTROL_MODE_MANUAL: Final = "manual"
+CONTROL_MODE_NOTIFY: Final = "notify"
+CONTROL_MODE_AUTO: Final = "auto"
+
+EVENT_NOTIFICATION_RESPONSE: Final = "nibe_pilot_notification_response"
+NOTIFICATION_TAG: Final = "nibe_pilot_recommendation"
 
 DEFAULT_UPDATE_INTERVAL: Final = 15
 DEFAULT_CONFIDENCE_THRESHOLD: Final = 0.7

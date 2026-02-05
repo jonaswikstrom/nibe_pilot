@@ -61,7 +61,9 @@
           "supply_temp_entity": "Framledningstemperatursensor",
           "weather_entity": "Väderprognos-entitet",
           "electricity_price_entity": "Elpris-entitet",
-          "building_type": "Byggnadstyp"
+          "building_type": "Byggnadstyp",
+          "control_mode": "Styrläge",
+          "notify_service": "Notistjänst (t.ex. notify.mobile_app_din_telefon)"
         }
       },
       "safety": {

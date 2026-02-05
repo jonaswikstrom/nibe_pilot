@@ -26,6 +26,11 @@ from .const import (
     CONF_CONFIDENCE_THRESHOLD,
     CONF_COOLDOWN_MINUTES,
     CONF_BUILDING_TYPE,
+    CONF_NOTIFY_SERVICE,
+    CONF_CONTROL_MODE,
+    CONTROL_MODE_MANUAL,
+    CONTROL_MODE_NOTIFY,
+    CONTROL_MODE_AUTO,
     DEFAULT_UPDATE_INTERVAL,
     DEFAULT_MAX_HEAT_CURVE_DELTA,
     DEFAULT_MAX_HEAT_OFFSET_DELTA,
@@ -253,6 +258,27 @@ class NibePilotOptionsFlow(config_entries.OptionsFlow):
                         {"value": "heavy", "label": "Tung byggnad (stor termisk massa)"},
                     ],
                     mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            ),
+            vol.Optional(
+                CONF_CONTROL_MODE,
+                description={"suggested_value": current.get(CONF_CONTROL_MODE, CONTROL_MODE_MANUAL)}
+            ): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[
+                        {"value": CONTROL_MODE_MANUAL, "label": "Manuellt (visa endast rekommendationer)"},
+                        {"value": CONTROL_MODE_NOTIFY, "label": "Notis (fråga innan ändring)"},
+                        {"value": CONTROL_MODE_AUTO, "label": "Automatiskt (applicera direkt)"},
+                    ],
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            ),
+            vol.Optional(
+                CONF_NOTIFY_SERVICE,
+                description={"suggested_value": current.get(CONF_NOTIFY_SERVICE)}
+            ): selector.TextSelector(
+                selector.TextSelectorConfig(
+                    type=selector.TextSelectorType.TEXT,
                 )
             ),
         })

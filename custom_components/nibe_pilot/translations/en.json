@@ -61,7 +61,9 @@
           "supply_temp_entity": "Supply Temperature Sensor",
           "weather_entity": "Weather Forecast Entity",
           "electricity_price_entity": "Electricity Price Entity",
-          "building_type": "Building Type"
+          "building_type": "Building Type",
+          "control_mode": "Control Mode",
+          "notify_service": "Notify Service (e.g. notify.mobile_app_your_phone)"
         }
       },
       "safety": {

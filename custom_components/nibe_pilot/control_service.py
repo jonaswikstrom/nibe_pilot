@@ -172,6 +172,8 @@ class ControlService:
             "skipped_cooldown": "Hoppade över (cooldown)",
             "adjust_heat_curve": "Justerade värmekurva",
             "adjust_offset": "Justerade värmeoffset",
+            "awaiting_confirmation": "Väntar på bekräftelse",
+            "dismissed": "Avvisad av användare",
         }
 
         base_text = action_texts.get(self.last_action, self.last_action)
