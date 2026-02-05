@@ -1,14 +1,25 @@
 import logging
-from homeassistant.components.switch import SwitchEntity
+from homeassistant.components.select import SelectEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN
+from .const import (
+    DOMAIN,
+    CONTROL_MODE_MANUAL,
+    CONTROL_MODE_NOTIFY,
+    CONTROL_MODE_AUTO,
+)
 from .coordinator import NibePilotCoordinator
 
 _LOGGER = logging.getLogger(__name__)
+
+CONTROL_MODE_OPTIONS = {
+    CONTROL_MODE_MANUAL: "Manuellt",
+    CONTROL_MODE_NOTIFY: "Notis",
+    CONTROL_MODE_AUTO: "Automatiskt",
+}
 
 
 async def async_setup_entry(
@@ -17,19 +28,19 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     coordinator: NibePilotCoordinator = hass.data[DOMAIN][entry.entry_id]
+    async_add_entities([NibePilotControlModeSelect(coordinator, entry)])
 
-    async_add_entities([NibePilotAutoModeSwitch(coordinator, entry)])
 
-
-class NibePilotAutoModeSwitch(CoordinatorEntity[NibePilotCoordinator], SwitchEntity):
+class NibePilotControlModeSelect(CoordinatorEntity[NibePilotCoordinator], SelectEntity):
     _attr_has_entity_name = True
-    _attr_name = "Auto-mode"
+    _attr_translation_key = "control_mode"
     _attr_icon = "mdi:robot"
 
     def __init__(self, coordinator: NibePilotCoordinator, entry: ConfigEntry):
         super().__init__(coordinator)
         self._entry = entry
-        self._attr_unique_id = f"{entry.entry_id}_auto_mode"
+        self._attr_unique_id = f"{entry.entry_id}_control_mode"
+        self._attr_options = list(CONTROL_MODE_OPTIONS.values())
 
     @property
     def device_info(self):
@@ -38,22 +49,22 @@ class NibePilotAutoModeSwitch(CoordinatorEntity[NibePilotCoordinator], SwitchEnt
             "name": "NibePilot",
             "manufacturer": "Community",
             "model": "AI Heat Pump Controller",
-            "sw_version": "1.2.3",
+            "sw_version": "1.3.2",
         }
 
     @property
-    def is_on(self) -> bool:
-        return self.coordinator.auto_mode
+    def current_option(self) -> str:
+        return CONTROL_MODE_OPTIONS.get(
+            self.coordinator.control_mode,
+            CONTROL_MODE_OPTIONS[CONTROL_MODE_MANUAL]
+        )
 
-    async def async_turn_on(self, **kwargs):
-        self.coordinator.set_auto_mode(True)
+    async def async_select_option(self, option: str) -> None:
+        mode_map = {v: k for k, v in CONTROL_MODE_OPTIONS.items()}
+        mode = mode_map.get(option, CONTROL_MODE_MANUAL)
+        self.coordinator.set_control_mode(mode)
         self.async_write_ha_state()
-        _LOGGER.info("NibePilot auto-mode enabled")
-
-    async def async_turn_off(self, **kwargs):
-        self.coordinator.set_auto_mode(False)
-        self.async_write_ha_state()
-        _LOGGER.info("NibePilot auto-mode disabled")
+        _LOGGER.info("NibePilot control mode set to %s", mode)
 
     @property
     def extra_state_attributes(self):

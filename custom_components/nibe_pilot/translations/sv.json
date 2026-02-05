@@ -96,9 +96,14 @@
         "name": "Token-förbrukning"
       }
     },
-    "switch": {
-      "auto_mode": {
-        "name": "Auto-mode"
+    "select": {
+      "control_mode": {
+        "name": "Styrläge",
+        "state": {
+          "Manuellt": "Manuellt",
+          "Notis": "Notis",
+          "Automatiskt": "Automatiskt"
+        }
       }
     },
     "button": {

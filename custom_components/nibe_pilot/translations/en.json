@@ -96,9 +96,14 @@
         "name": "Token Usage"
       }
     },
-    "switch": {
-      "auto_mode": {
-        "name": "Auto Mode"
+    "select": {
+      "control_mode": {
+        "name": "Control Mode",
+        "state": {
+          "Manuellt": "Manual",
+          "Notis": "Notify",
+          "Automatiskt": "Automatic"
+        }
       }
     },
     "button": {
