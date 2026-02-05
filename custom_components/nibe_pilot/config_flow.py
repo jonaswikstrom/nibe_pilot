@@ -191,6 +191,7 @@ class NibePilotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 class NibePilotOptionsFlow(config_entries.OptionsFlow):
     def __init__(self, config_entry):
         self.config_entry = config_entry
+        self._options_data = {}
 
     async def async_step_init(self, user_input=None):
         if user_input is not None:
