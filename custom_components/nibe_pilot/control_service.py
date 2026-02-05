@@ -6,7 +6,6 @@ from homeassistant.const import ATTR_ENTITY_ID
 from .const import (
     CONF_HEAT_CURVE,
     CONF_HEAT_OFFSET,
-    CONF_SETPOINT,
     DEFAULT_CONFIDENCE_THRESHOLD,
 )
 

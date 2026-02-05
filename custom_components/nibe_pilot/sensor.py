@@ -2,11 +2,11 @@ import logging
 from datetime import datetime
 from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, ATTR_REASONING, ATTR_CONFIDENCE
+from .const import DOMAIN, ATTR_CONFIDENCE
 from .coordinator import NibePilotCoordinator
 
 _LOGGER = logging.getLogger(__name__)
