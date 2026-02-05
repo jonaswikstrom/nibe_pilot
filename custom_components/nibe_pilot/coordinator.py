@@ -1,7 +1,7 @@
 import logging
 from datetime import timedelta
 from typing import Any
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, CoreState
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
@@ -29,6 +29,8 @@ from .control_service import ControlService
 
 _LOGGER = logging.getLogger(__name__)
 
+STARTUP_DELAY_SECONDS = 120
+
 
 class NibePilotCoordinator(DataUpdateCoordinator):
     def __init__(
@@ -43,6 +45,8 @@ class NibePilotCoordinator(DataUpdateCoordinator):
         self.control_service = control_service
         self.auto_mode = False
         self._last_recommendation: dict[str, Any] = {}
+        self._startup_complete = False
+        self._first_update_skipped = False
 
         config = {**entry.data, **entry.options}
         update_interval = config.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
@@ -56,7 +60,26 @@ class NibePilotCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self) -> dict[str, Any]:
         try:
+            if self.hass.state != CoreState.running:
+                _LOGGER.debug("Home Assistant not fully started, skipping analysis")
+                return self._waiting_response("Väntar på att Home Assistant ska starta")
+
+            if not self._first_update_skipped:
+                self._first_update_skipped = True
+                _LOGGER.info(
+                    "First update after startup, waiting %d seconds before analysis",
+                    STARTUP_DELAY_SECONDS
+                )
+                return self._waiting_response(
+                    f"Väntar {STARTUP_DELAY_SECONDS}s på att sensorer ska stabiliseras"
+                )
+
             sensor_data = self._collect_sensor_data()
+
+            missing = self._check_required_sensors(sensor_data)
+            if missing:
+                _LOGGER.warning("Missing required sensor data: %s", missing)
+                return self._waiting_response(f"Saknar data från: {', '.join(missing)}")
 
             if self.control_service.last_action:
                 sensor_data["last_action"] = {
@@ -90,6 +113,30 @@ class NibePilotCoordinator(DataUpdateCoordinator):
         except Exception as err:
             _LOGGER.error("Error during update: %s", err)
             raise UpdateFailed(f"Update failed: {err}") from err
+
+    def _check_required_sensors(self, data: dict[str, Any]) -> list[str]:
+        missing = []
+        if "outdoor_temp" not in data:
+            missing.append("utomhustemperatur")
+        if "indoor_temp" not in data:
+            missing.append("inomhustemperatur")
+        if "supply_temp" not in data:
+            missing.append("framledningstemperatur")
+        return missing
+
+    def _waiting_response(self, reason: str) -> dict[str, Any]:
+        return {
+            "sensor_data": {},
+            "recommendation": {
+                "action": "no_change",
+                "heat_curve_delta": 0,
+                "heat_offset_delta": 0,
+                "reasoning": reason,
+                "confidence": 0.0,
+            },
+            "last_action": reason,
+            "auto_mode": self.auto_mode,
+        }
 
     def _collect_sensor_data(self) -> dict[str, Any]:
         data = {}
