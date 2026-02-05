@@ -31,4 +31,4 @@ ATTR_AUTO_MODE: Final = "auto_mode"
 MAX_HEAT_CURVE_DELTA: Final = 5
 MAX_HEAT_OFFSET_DELTA: Final = 3
 
-CLAUDE_MODEL: Final = "claude-3-5-sonnet-20241022"
+CLAUDE_MODEL: Final = "claude-sonnet-4-5-20250929"
