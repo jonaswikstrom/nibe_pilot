@@ -21,7 +21,15 @@ from .const import (
     CONF_MANUAL_SETPOINT,
     CONF_WEATHER,
     CONF_ELECTRICITY_PRICE,
+    CONF_MAX_HEAT_CURVE_DELTA,
+    CONF_MAX_HEAT_OFFSET_DELTA,
+    CONF_CONFIDENCE_THRESHOLD,
+    CONF_COOLDOWN_MINUTES,
     DEFAULT_UPDATE_INTERVAL,
+    DEFAULT_MAX_HEAT_CURVE_DELTA,
+    DEFAULT_MAX_HEAT_OFFSET_DELTA,
+    DEFAULT_CONFIDENCE_THRESHOLD,
+    DEFAULT_COOLDOWN_MINUTES,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -185,9 +193,10 @@ class NibePilotOptionsFlow(config_entries.OptionsFlow):
 
     async def async_step_init(self, user_input=None):
         if user_input is not None:
-            return self.async_create_entry(title="", data=user_input)
+            self._options_data = user_input
+            return await self.async_step_safety()
 
-        current = self.config_entry.data
+        current = {**self.config_entry.data, **self.config_entry.options}
 
         schema = vol.Schema({
             vol.Required(
@@ -236,5 +245,65 @@ class NibePilotOptionsFlow(config_entries.OptionsFlow):
 
         return self.async_show_form(
             step_id="init",
+            data_schema=schema,
+        )
+
+    async def async_step_safety(self, user_input=None):
+        if user_input is not None:
+            self._options_data.update(user_input)
+            return self.async_create_entry(title="", data=self._options_data)
+
+        current = {**self.config_entry.data, **self.config_entry.options}
+
+        schema = vol.Schema({
+            vol.Required(
+                CONF_MAX_HEAT_CURVE_DELTA,
+                default=current.get(CONF_MAX_HEAT_CURVE_DELTA, DEFAULT_MAX_HEAT_CURVE_DELTA)
+            ): selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    min=1,
+                    max=10,
+                    step=1,
+                    mode=selector.NumberSelectorMode.SLIDER,
+                )
+            ),
+            vol.Required(
+                CONF_MAX_HEAT_OFFSET_DELTA,
+                default=current.get(CONF_MAX_HEAT_OFFSET_DELTA, DEFAULT_MAX_HEAT_OFFSET_DELTA)
+            ): selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    min=1,
+                    max=5,
+                    step=1,
+                    mode=selector.NumberSelectorMode.SLIDER,
+                )
+            ),
+            vol.Required(
+                CONF_CONFIDENCE_THRESHOLD,
+                default=current.get(CONF_CONFIDENCE_THRESHOLD, DEFAULT_CONFIDENCE_THRESHOLD)
+            ): selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    min=0.3,
+                    max=0.95,
+                    step=0.05,
+                    mode=selector.NumberSelectorMode.SLIDER,
+                )
+            ),
+            vol.Required(
+                CONF_COOLDOWN_MINUTES,
+                default=current.get(CONF_COOLDOWN_MINUTES, DEFAULT_COOLDOWN_MINUTES)
+            ): selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    min=0,
+                    max=120,
+                    step=5,
+                    unit_of_measurement="min",
+                    mode=selector.NumberSelectorMode.SLIDER,
+                )
+            ),
+        })
+
+        return self.async_show_form(
+            step_id="safety",
             data_schema=schema,
         )

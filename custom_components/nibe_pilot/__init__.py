@@ -15,7 +15,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     api_key = entry.data[CONF_API_KEY]
     claude_service = ClaudeService(api_key)
-    control_service = ControlService(hass, entry.data)
+    config = {**entry.data, **entry.options}
+    control_service = ControlService(hass, config)
 
     coordinator = NibePilotCoordinator(
         hass,

@@ -62,6 +62,16 @@
           "weather_entity": "Väderprognos-entitet",
           "electricity_price_entity": "Elpris-entitet"
         }
+      },
+      "safety": {
+        "title": "Säkerhetsgränser",
+        "description": "Konfigurera säkerhetsgränser för AI-styrningen.",
+        "data": {
+          "max_heat_curve_delta": "Max värmekurvejustering",
+          "max_heat_offset_delta": "Max värmeoffsetjustering",
+          "confidence_threshold": "Minsta confidence för åtgärd",
+          "cooldown_minutes": "Väntetid mellan justeringar"
+        }
       }
     }
   },

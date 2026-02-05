@@ -62,6 +62,16 @@
           "weather_entity": "Weather Forecast Entity",
           "electricity_price_entity": "Electricity Price Entity"
         }
+      },
+      "safety": {
+        "title": "Safety Limits",
+        "description": "Configure safety limits for AI control.",
+        "data": {
+          "max_heat_curve_delta": "Max heat curve adjustment",
+          "max_heat_offset_delta": "Max heat offset adjustment",
+          "confidence_threshold": "Minimum confidence for action",
+          "cooldown_minutes": "Cooldown between adjustments"
+        }
       }
     }
   },

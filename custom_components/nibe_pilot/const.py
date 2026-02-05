@@ -19,8 +19,20 @@ CONF_MANUAL_SETPOINT: Final = "manual_setpoint"
 CONF_WEATHER: Final = "weather_entity"
 CONF_ELECTRICITY_PRICE: Final = "electricity_price_entity"
 
+CONF_MAX_HEAT_CURVE_DELTA: Final = "max_heat_curve_delta"
+CONF_MAX_HEAT_OFFSET_DELTA: Final = "max_heat_offset_delta"
+CONF_CONFIDENCE_THRESHOLD: Final = "confidence_threshold"
+CONF_MIN_INDOOR_TEMP: Final = "min_indoor_temp"
+CONF_MAX_INDOOR_TEMP: Final = "max_indoor_temp"
+CONF_COOLDOWN_MINUTES: Final = "cooldown_minutes"
+
 DEFAULT_UPDATE_INTERVAL: Final = 15
 DEFAULT_CONFIDENCE_THRESHOLD: Final = 0.7
+DEFAULT_MAX_HEAT_CURVE_DELTA: Final = 5
+DEFAULT_MAX_HEAT_OFFSET_DELTA: Final = 3
+DEFAULT_MIN_INDOOR_TEMP: Final = 18.0
+DEFAULT_MAX_INDOOR_TEMP: Final = 24.0
+DEFAULT_COOLDOWN_MINUTES: Final = 30
 
 ATTR_RECOMMENDATION: Final = "recommendation"
 ATTR_REASONING: Final = "reasoning"

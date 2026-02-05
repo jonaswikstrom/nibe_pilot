@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timedelta
 from typing import Any
 from homeassistant.core import HomeAssistant
 from homeassistant.const import ATTR_ENTITY_ID
@@ -6,7 +7,10 @@ from homeassistant.const import ATTR_ENTITY_ID
 from .const import (
     CONF_HEAT_CURVE,
     CONF_HEAT_OFFSET,
+    CONF_CONFIDENCE_THRESHOLD,
+    CONF_COOLDOWN_MINUTES,
     DEFAULT_CONFIDENCE_THRESHOLD,
+    DEFAULT_COOLDOWN_MINUTES,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -18,6 +22,10 @@ class ControlService:
         self.config = config
         self.last_action: str | None = None
         self.last_action_details: dict[str, Any] = {}
+        self.last_adjustment_time: datetime | None = None
+
+    def update_config(self, config: dict[str, Any]):
+        self.config = config
 
     async def apply_recommendation(
         self,
@@ -30,16 +38,29 @@ class ControlService:
             self.last_action_details = {"reason": "Auto-mode är avaktiverat"}
             return False
 
+        cooldown_minutes = self.config.get(CONF_COOLDOWN_MINUTES, DEFAULT_COOLDOWN_MINUTES)
+        if cooldown_minutes > 0 and self.last_adjustment_time:
+            time_since_last = datetime.now() - self.last_adjustment_time
+            if time_since_last < timedelta(minutes=cooldown_minutes):
+                remaining = cooldown_minutes - (time_since_last.total_seconds() / 60)
+                _LOGGER.debug("Cooldown active, %.0f minutes remaining", remaining)
+                self.last_action = "skipped_cooldown"
+                self.last_action_details = {
+                    "reason": f"Väntar {remaining:.0f} min (cooldown)",
+                }
+                return False
+
         confidence = recommendation.get("confidence", 0)
-        if confidence < DEFAULT_CONFIDENCE_THRESHOLD:
+        confidence_threshold = self.config.get(CONF_CONFIDENCE_THRESHOLD, DEFAULT_CONFIDENCE_THRESHOLD)
+        if confidence < confidence_threshold:
             _LOGGER.debug(
                 "Confidence %.2f below threshold %.2f, not applying",
                 confidence,
-                DEFAULT_CONFIDENCE_THRESHOLD
+                confidence_threshold
             )
             self.last_action = "skipped_low_confidence"
             self.last_action_details = {
-                "reason": f"Confidence {confidence:.0%} under tröskelvärde",
+                "reason": f"Confidence {confidence:.0%} under tröskelvärde ({confidence_threshold:.0%})",
                 "confidence": confidence,
             }
             return False
@@ -76,6 +97,7 @@ class ControlService:
                     0
                 ),
             }
+            self.last_adjustment_time = datetime.now()
 
         return applied
 
@@ -147,6 +169,7 @@ class ControlService:
             "no_change": "Ingen ändring behövs",
             "skipped_manual_mode": "Hoppade över (manuellt läge)",
             "skipped_low_confidence": "Hoppade över (låg confidence)",
+            "skipped_cooldown": "Hoppade över (cooldown)",
             "adjust_heat_curve": "Justerade värmekurva",
             "adjust_offset": "Justerade värmeoffset",
         }

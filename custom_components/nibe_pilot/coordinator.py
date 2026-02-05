@@ -43,7 +43,8 @@ class NibePilotCoordinator(DataUpdateCoordinator):
         self.auto_mode = False
         self._last_recommendation: dict[str, Any] = {}
 
-        update_interval = entry.data.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
+        config = {**entry.data, **entry.options}
+        update_interval = config.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
 
         super().__init__(
             hass,
@@ -85,7 +86,7 @@ class NibePilotCoordinator(DataUpdateCoordinator):
 
     def _collect_sensor_data(self) -> dict[str, Any]:
         data = {}
-        config = self.entry.data
+        config = {**self.entry.data, **self.entry.options}
 
         sensor_mappings = {
             "outdoor_temp": CONF_OUTDOOR_TEMP,
