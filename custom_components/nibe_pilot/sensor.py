@@ -24,6 +24,7 @@ async def async_setup_entry(
         NibePilotAnalysisSensor(coordinator, entry),
         NibePilotConfidenceSensor(coordinator, entry),
         NibePilotLastActionSensor(coordinator, entry),
+        NibePilotTokenUsageSensor(coordinator, entry),
     ]
 
     async_add_entities(entities)
@@ -50,7 +51,7 @@ class NibePilotBaseSensor(CoordinatorEntity[NibePilotCoordinator], SensorEntity)
             "name": "NibePilot",
             "manufacturer": "Community",
             "model": "AI Heat Pump Controller",
-            "sw_version": "1.0.0",
+            "sw_version": "1.0.4",
         }
 
 
@@ -172,4 +173,33 @@ class NibePilotLastActionSensor(NibePilotBaseSensor):
             ATTR_CONFIDENCE: details.get("confidence"),
             "delta": details.get("delta"),
             "timestamp": datetime.now().isoformat(),
+        }
+
+
+class NibePilotTokenUsageSensor(NibePilotBaseSensor):
+    _attr_name = "Token-förbrukning"
+    _attr_icon = "mdi:counter"
+    _attr_native_unit_of_measurement = "tokens"
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+
+    def __init__(self, coordinator: NibePilotCoordinator, entry: ConfigEntry):
+        super().__init__(coordinator, entry, "token_usage")
+
+    @property
+    def native_value(self) -> int:
+        stats = self.coordinator.claude_service.token_stats
+        return stats.get("total_tokens", 0)
+
+    @property
+    def extra_state_attributes(self):
+        stats = self.coordinator.claude_service.token_stats
+        return {
+            "total_input_tokens": stats.get("total_input_tokens", 0),
+            "total_output_tokens": stats.get("total_output_tokens", 0),
+            "last_input_tokens": stats.get("last_input_tokens", 0),
+            "last_output_tokens": stats.get("last_output_tokens", 0),
+            "last_tokens": stats.get("last_tokens", 0),
+            "api_calls_count": stats.get("api_calls_count", 0),
+            "api_available": self.coordinator.claude_service.api_available,
+            "last_error": self.coordinator.claude_service.last_error,
         }

@@ -78,11 +78,19 @@
       },
       "last_action": {
         "name": "Senaste åtgärd"
+      },
+      "token_usage": {
+        "name": "Token-förbrukning"
       }
     },
     "switch": {
       "auto_mode": {
         "name": "Auto-mode"
+      }
+    },
+    "button": {
+      "refresh": {
+        "name": "Kör analys"
       }
     }
   }

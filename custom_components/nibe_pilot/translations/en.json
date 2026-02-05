@@ -78,11 +78,19 @@
       },
       "last_action": {
         "name": "Last Action"
+      },
+      "token_usage": {
+        "name": "Token Usage"
       }
     },
     "switch": {
       "auto_mode": {
         "name": "Auto Mode"
+      }
+    },
+    "button": {
+      "refresh": {
+        "name": "Run Analysis"
       }
     }
   }

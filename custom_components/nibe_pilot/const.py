@@ -1,7 +1,7 @@
 from typing import Final
 
 DOMAIN: Final = "nibe_pilot"
-PLATFORMS: Final = ["sensor", "switch"]
+PLATFORMS: Final = ["sensor", "switch", "button"]
 
 CONF_API_KEY: Final = "api_key"
 CONF_UPDATE_INTERVAL: Final = "update_interval"
