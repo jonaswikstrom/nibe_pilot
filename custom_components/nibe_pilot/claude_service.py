@@ -150,7 +150,8 @@ def build_user_prompt(data: dict[str, Any]) -> str:
 
 class ClaudeService:
     def __init__(self, api_key: str):
-        self.client = AsyncAnthropic(api_key=api_key, timeout=API_TIMEOUT)
+        self._api_key = api_key
+        self._client: AsyncAnthropic | None = None
         self.api_available = True
         self.last_error: str | None = None
         self.consecutive_failures = 0
@@ -159,6 +160,12 @@ class ClaudeService:
         self.last_input_tokens = 0
         self.last_output_tokens = 0
         self.api_calls_count = 0
+
+    @property
+    def client(self) -> AsyncAnthropic:
+        if self._client is None:
+            self._client = AsyncAnthropic(api_key=self._api_key, timeout=API_TIMEOUT)
+        return self._client
 
     async def get_recommendation(self, data: dict[str, Any]) -> dict[str, Any]:
         user_prompt = build_user_prompt(data)
